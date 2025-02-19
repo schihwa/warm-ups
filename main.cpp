@@ -13,14 +13,17 @@
 #include <memory>
 
 // POD types don't need a destructor.
-// TODO: RELATIVE OFFSETS for struct packing 
 struct TSTNode
 {
+    // TODO: RELATIVE OFFSETS for struct packing 
     TSTNode *left = nullptr;
     TSTNode *middle = nullptr;
     TSTNode *right = nullptr;
-    char character;
+    char character = '\0';
     bool isEndOfWord = false;
+    TSTNode() = default;     
+    // TODO: Add ctor value for middle variable      
+    explicit TSTNode(char ch) : character(ch) {}
 };
 
 inline TSTNode *createNode(std::pmr::memory_resource *pool, char ch)
@@ -31,23 +34,18 @@ inline TSTNode *createNode(std::pmr::memory_resource *pool, char ch)
     return new_node;
 }
 
-// most words arent really the same 
+// most words aren't really the same 
 inline TSTNode *bulkCreateNodes(std::pmr::memory_resource *pool, std::string_view str)
 {
     // 
     void *mem = pool->allocate(str.length() * sizeof(TSTNode), alignof(TSTNode));
     TSTNode *nodes = static_cast<TSTNode *>(mem);
 
-    std::uninitialized_value_construct_n(nodes, str.length());
-
-    // Now assign characters
+    // TODO: set the middle for each node
     for (size_t idx = 0; idx < str.length(); ++idx)
     {
-        nodes[idx].character = str[idx]; 
-        // TODO: set the middle for each node
-
+        std::ranges::construct_at(&nodes[idx], str[idx]);
     }
-    
 
     return nodes;
 }
@@ -64,7 +62,7 @@ void insertWord(std::string_view word, TSTNode *&root, std::pmr::memory_resource
 
         TSTNode *currentNode = root;
 
-        // looks for the first occurence of a unique branch
+        // looks for the first occurrence of a unique branch
         for (size_t index = 0; index < word.size(); ++index) {
             char currentChar = word[index];
             TSTNode** childPtr = nullptr;
