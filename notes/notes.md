@@ -1,0 +1,1 @@
+assertions are for programming errors and exceptions for for errors that are completely unexpected and normal.
